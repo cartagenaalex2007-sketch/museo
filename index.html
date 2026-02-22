@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Museo-3D VR | Experiencia AAA</title>
+    <meta name="description"
+        content="Museo virtual 3D con obras de arte clásicas, arquitectura hiperrealista y navegación interactiva.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="menu">
+        <div class="menu-content">
+            <h1>ORIENTAL INSTITUTE</h1>
+            <p>Reconstrucción Fiel AAA</p>
+            <button id="startButton">ENTRAR AL MUSEO</button>
+            <p class="instructions">Click para explorar. Obras interactivas.</p>
+            <div class="controls">
+                <p><strong>Controles:</strong></p>
+                <p>W, A, S, D - Moverse</p>
+                <p>Ratón - Mirar a tu alrededor</p>
+                <p>Click Izquierdo (Mira al cuadro) - Acercarse a la obra</p>
+                <p>ESC - Salir del modo libre</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+    <button id="backButton" style="display:none;">VOLVER A NAVEGAR</button>
+
+    <div id="infoPanel" style="display:none;">
+        <h2 id="infoTitle">Título de la Obra</h2>
+        <p class="subtitle"><span id="infoAuthor">Autor</span> - <span id="infoYear">Año</span></p>
+        <div class="divider"></div>
+        <p id="infoDesc">Descripción histórica de la obra aparecerá aquí.</p>
+    </div>
+
+    <!-- Importmap for Three.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <!-- Main Script -->
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>

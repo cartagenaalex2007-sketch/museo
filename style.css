@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    background-color: #000;
+}
+
+#menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 8, 12, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    color: white;
+}
+
+.menu-content {
+    text-align: center;
+    background: linear-gradient(145deg, rgba(30, 30, 40, 0.9), rgba(15, 15, 20, 0.95));
+    padding: 3rem 5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(212, 175, 55, 0.1);
+}
+
+h1 {
+    font-size: 4rem;
+    margin: 0 0 5px 0;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    background: linear-gradient(to right, #ffffff, #d4af37, #aaaaaa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.2);
+}
+
+.menu-content>p {
+    font-size: 1.2rem;
+    color: #cccccc;
+    margin-bottom: 2rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+button {
+    padding: 16px 45px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: rgba(212, 175, 55, 0.1);
+    color: #d4af37;
+    border: 2px solid #d4af37;
+    border-radius: 50px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-family: inherit;
+    outline: none;
+}
+
+button:hover {
+    background: #d4af37;
+    color: #000;
+    box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.instructions {
+    margin-top: 2rem;
+    color: #888 !important;
+    font-size: 0.9rem !important;
+}
+
+.controls {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.controls p {
+    margin: 5px 0;
+}
+
+.controls strong {
+    color: #d4af37;
+}
+
+#crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 5;
+    display: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.crosshair-active {
+    transform: translate(-50%, -50%) scale(1.8);
+    background: #d4af37 !important;
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.8) !important;
+}
+
+#infoPanel {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
+    background: rgba(15, 15, 20, 0.9);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 12px;
+    padding: 25px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(212, 175, 55, 0.15);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+#infoPanel h2 {
+    margin: 0 0 5px 0;
+    color: #d4af37;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+}
+
+#infoPanel .subtitle {
+    margin: 0 0 15px 0;
+    color: #aaa;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+#infoPanel .divider {
+    height: 1px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.5) 0%, rgba(212, 175, 55, 0) 100%);
+    margin-bottom: 15px;
+}
+
+#infoPanel #infoDesc {
+    font-size: 0.95rem;
+    color: #ddd;
+    line-height: 1.6;
+    margin: 0;
+    text-align: justify;
+}
+
+#backButton {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 40px;
+    background: rgba(10, 10, 10, 0.85);
+    color: #fff;
+    border: 1px solid #d4af37;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    z-index: 10;
+    transition: all 0.3s;
+    backdrop-filter: blur(5px);
+}
+
+#backButton:hover {
+    background: #d4af37;
+    color: #000;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
