@@ -9,8 +9,8 @@ scene.fog = new THREE.FogExp2(0x050508, 0.008);
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
 
 // REUBICACIÓN DE CÁMARA (Lobby Seguro y Orientado)
-camera.position.set(0, 1.7, 45); // Dentro del Lobby principal (Límite de la pared sur es 55)
-camera.lookAt(new THREE.Vector3(0, 1.7, 0)); // Mirar directamente hacia el centro del museo
+camera.position.set(-13, 1.7, 50); // Mantenemos el punto inicial estricto que pidió el usuario
+camera.lookAt(new THREE.Vector3(-30, 1.7, 0)); // Mirar hacia la galería principal (Mesopotamia) para no ver una pared
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -165,7 +165,8 @@ const wallMat = new THREE.MeshStandardMaterial({ color: 0xeae6df, roughness: 0.9
 const baseMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
 
 function buildWall(x, z, w, d) {
-    const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ceilingHeight, d), wallMat);
+    const h = ceilingHeight + 0.2; // Estirado para tapar huecos en techo/suelo
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
     wall.position.set(x, ceilingHeight / 2, z);
     wall.receiveShadow = true; wall.castShadow = true;
     scene.add(wall);
@@ -188,20 +189,22 @@ function buildGlass(x, z, w, d) {
     const frameMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.7, metalness: 0.8 });
 
     const group = new THREE.Group();
-    const glass = new THREE.Mesh(new THREE.BoxGeometry(w, ceilingHeight - 0.4, d), glassMat);
-    glass.position.y = ceilingHeight / 2; group.add(glass);
+    const glassH = ceilingHeight - 0.4 + 0.1; // Estirado hacia el techo
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(w, glassH, d), glassMat);
+    glass.position.y = (ceilingHeight - 0.4) / 2 + 0.45; group.add(glass);
 
     const frameBase = new THREE.Mesh(new THREE.BoxGeometry(w + 0.1, 0.4, d + 0.1), frameMat);
     frameBase.position.y = 0.2; group.add(frameBase);
 
+    const frameH = ceilingHeight + 0.2;
     if (w > d) {
         for (let px = -w / 2; px <= w / 2; px += 4) {
-            const m = new THREE.Mesh(new THREE.BoxGeometry(0.2, ceilingHeight, d + 0.15), frameMat);
+            const m = new THREE.Mesh(new THREE.BoxGeometry(0.2, frameH, d + 0.15), frameMat);
             m.position.set(px, ceilingHeight / 2, 0); group.add(m);
         }
     } else {
         for (let pz = -d / 2; pz <= d / 2; pz += 4) {
-            const m = new THREE.Mesh(new THREE.BoxGeometry(w + 0.15, ceilingHeight, 0.2), frameMat);
+            const m = new THREE.Mesh(new THREE.BoxGeometry(w + 0.15, frameH, 0.2), frameMat);
             m.position.set(0, ceilingHeight / 2, pz); group.add(m);
         }
     }
@@ -210,54 +213,79 @@ function buildGlass(x, z, w, d) {
     colliders.push(new THREE.Box3().setFromObject(glass));
 }
 
-function createDoorwayWall(x, z, length, thickness, isHorizontal, signType = 'ENTER') {
+function createDoorwayWall(x, z, length, thickness, isHorizontal) {
     const gap = 8;
     const sideLen = (length - gap) / 2;
-    let signPos = new THREE.Vector3();
-    let signRot = 0;
 
     if (isHorizontal) {
         buildWall(x - length / 2 + sideLen / 2, z, sideLen, thickness);
         buildWall(x + length / 2 - sideLen / 2, z, sideLen, thickness);
-        const lintel = new THREE.Mesh(new THREE.BoxGeometry(gap, 1.5, thickness), wallMat);
-        lintel.position.set(x, ceilingHeight - 0.75, z); scene.add(lintel);
-        signPos.set(x, ceilingHeight - 1.0, z + (thickness / 2 + 0.05));
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(gap, 1.5 + 0.1, thickness), wallMat);
+        lintel.position.set(x, ceilingHeight - 0.75 + 0.05, z); scene.add(lintel);
     } else {
         buildWall(x, z - length / 2 + sideLen / 2, thickness, sideLen);
         buildWall(x, z + length / 2 - sideLen / 2, thickness, sideLen);
-        const lintel = new THREE.Mesh(new THREE.BoxGeometry(thickness, 1.5, gap), wallMat);
-        lintel.position.set(x, ceilingHeight - 0.75, z); scene.add(lintel);
-        signPos.set(x + (thickness / 2 + 0.05), ceilingHeight - 1.0, z);
-        signRot = Math.PI / 2;
+        const lintel = new THREE.Mesh(new THREE.BoxGeometry(thickness, 1.5 + 0.1, gap), wallMat);
+        lintel.position.set(x, ceilingHeight - 0.75 + 0.05, z); scene.add(lintel);
     }
-
-    // INDICADORES SIMPLES (Evita texturar lienzos con texto para estabilidad total de webgl)
-    const isEnter = signType === 'ENTER';
-    const emissiveColor = isEnter ? 0x2244ff : 0x00ff00;
-
-    const signMat = new THREE.MeshStandardMaterial({
-        color: emissiveColor, emissive: emissiveColor, emissiveIntensity: 0.8, roughness: 0.2
-    });
-    const sign = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), signMat);
-    sign.position.copy(signPos); sign.rotation.y = signRot;
-    scene.add(sign);
-
-    const signBack = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), signMat);
-    if (isHorizontal) { signBack.position.set(x, ceilingHeight - 1.0, z - (thickness / 2 + 0.05)); signBack.rotation.y = Math.PI; }
-    else { signBack.position.set(x - (thickness / 2 + 0.05), ceilingHeight - 1.0, z); signBack.rotation.y = -Math.PI / 2; }
-    scene.add(signBack);
 }
 
 // Planta del Oriental Institute
 buildGlass(0, -14, 28, 0.5); buildGlass(0, 14, 28, 0.5); buildGlass(14, 0, 0.5, 28); buildGlass(-14, 0, 0.5, 28);
-buildWall(0, -45, 90, 2); buildWall(0, 55, 90, 2); buildWall(-45, 5, 2, 100); buildWall(45, 5, 2, 100);
 
-createDoorwayWall(-14, -26, 24, 2, false, 'ENTER');
-createDoorwayWall(14, -26, 24, 2, false, 'ENTER');
-createDoorwayWall(29, 20, 30, 2, true, 'EXIT');
-buildWall(-14, 30, 2, 50);
-createDoorwayWall(0, 26, 28, 2, true, 'ENTER');
-createDoorwayWall(-29, 20, 30, 2, true, 'ENTER');
+// Muros exteriores perfectamente sellados en las esquinas (-45 a 45)
+buildWall(0, -45, 92, 2); buildWall(0, 55, 92, 2);
+buildWall(-45, 5, 2, 102); buildWall(45, 5, 2, 102);
+
+// ---- NUEVA PARED DIVISORIA LONGITUDINAL ----
+// Construida perpendicular en X: -12 (para no dejar atrapada a la cámara en X: -13).
+// Se extiende a lo largo de Z desde 50 (donde inicia la cámara) hasta Z: 25 (el final del pasillo/patio).
+const paredGeo = new THREE.BoxGeometry(0.5, 7, 25); // Grosor 0.5, Altura 7, Largo 25 en Z
+const paredDivisoria = new THREE.Mesh(paredGeo, wallMat);
+paredDivisoria.position.set(-12, 3.5, 37.5); // Centro entre Z=25 y Z=50
+paredDivisoria.receiveShadow = true;
+paredDivisoria.castShadow = true;
+scene.add(paredDivisoria);
+colliders.push(new THREE.Box3().setFromObject(paredDivisoria));
+
+// ---- REUBICACIÓN MANUAL DE CARTELES LÓGICOS ----
+function createExplicitSign(text, bgColor, x, y, z, rotY) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = bgColor; ctx.fillRect(0, 0, 512, 128);
+    ctx.fillStyle = '#ffffff'; ctx.font = 'bold 80px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, 256, 64);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const mat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: 0.8, roughness: 0.2 });
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(3, 0.75), mat);
+    sign.position.set(x, y, z);
+    sign.rotation.y = rotY;
+    scene.add(sign);
+}
+
+// INGRESO centrado sobre el arco de entrada al patio (Z: 26)
+createExplicitSign('INGRESO', '#0b1bf7ff', 0, 4.5, 26 + 1.01, 0);
+
+// SALIDA centrado sobre el arco superior del patio mirando hacia las galerías (Z: 20)
+createExplicitSign('SALIDA', '#f8070767', 0, 4.5, 20 - 1.01, Math.PI);
+
+// Pasillos norte verticales (Z=-14 a -45)
+createDoorwayWall(-14, -29.5, 31, 2, false);
+createDoorwayWall(14, -29.5, 31, 2, false);
+
+// Divisiones horizontales en Z=20 que enmarcan las galerías
+createDoorwayWall(-29.5, 20, 31, 2, true);
+createDoorwayWall(29.5, 20, 31, 2, true);
+
+// Muros verticales cortos para cerrar el centro interior (del patio a las puertas traseras)
+buildWall(-14, 20, 2, 12);
+buildWall(14, 20, 2, 12);
+
+// Puerta central de ingreso al Patio
+createDoorwayWall(0, 26, 28, 2, true);
 
 // ---- Equipamiento de Seguridad y Decoración ----
 function createSecurityCamera(x, y, z, rotY) {
